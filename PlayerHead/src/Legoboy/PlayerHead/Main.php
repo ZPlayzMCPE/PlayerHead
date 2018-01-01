@@ -33,7 +33,7 @@ class Main extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 	
-	public function onCommand(CommandSender $sender, Command $command, $label, array $args){
+	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 		if(strtolower($command->getName()) === 'head'){
 			if(!$sender instanceof Player){
 				$sender->sendMessage(TextFormat::RED . 'Please execute this command as a player.');
@@ -58,6 +58,7 @@ class Main extends PluginBase implements Listener{
 								$count = $i->getCount();
 								$sender->getInventory()->removeItem($i);
 								$sold += $count;
+								return true;
 							}
 						}
 						if($sold <= 0){
@@ -68,6 +69,7 @@ class Main extends PluginBase implements Listener{
 						$earned = round($killedMoney * $this->getConfig()->get('heads-value-percentage', 0.1) * $sold);
 						EconomyAPI::getInstance()->addMoney($sender, $earned, true, 'PLUGIN');
 						$sender->sendMessage(TextFormat::AQUA . "You sold $killed's head and earned $$earned!");
+						return true;
 					}else{
 						$sold = 0;
 						$value = 0;
@@ -77,6 +79,7 @@ class Main extends PluginBase implements Listener{
 								$value += round(EconomyAPI::getInstance()->myMoney($i->getCustomName()) * $this->getConfig()->get('heads-value-percentage', 0.1));
 								$sold += $count;
 								$sender->getInventory()->removeItem($i);
+								return true;
 							}
 						}
 						EconomyAPI::getInstance()->addMoney($sender, $value, true, 'PLUGIN');
@@ -103,8 +106,10 @@ class Main extends PluginBase implements Listener{
 					foreach($list as $name => $count){
 						$v = $value[$name];
 						$sender->sendMessage(TextFormat::AQUA . $name . "'s head: $count with value of $$v.");
+						return true;
 					}
 					$sender->sendMessage(TextFormat::GOLD . str_repeat('-', 15));
+					return true;
 					break;
 			}
 		}
@@ -126,6 +131,7 @@ class Main extends PluginBase implements Listener{
 				EconomyAPI::getInstance()->reduceMoney($entity, $cost, true, 'PLUGIN');
 				$entity->sendMessage("You were killed by $kName, and lost $$cost.");
 				if($this->getConfig()->get('heads-place', false)){
+				return true;
 					
 				}
 			}
