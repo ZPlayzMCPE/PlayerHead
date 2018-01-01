@@ -34,7 +34,7 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-		if(strtolower($command->getName()) === 'head'){
+		if(strtolower($command->getName()) == 'head'){
 			if(!$sender instanceof Player){
 				$sender->sendMessage(TextFormat::RED . 'Please execute this command as a player.');
 				return true;
