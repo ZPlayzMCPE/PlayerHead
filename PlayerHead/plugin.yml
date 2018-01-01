@@ -7,3 +7,4 @@ commands:
   head:
     usage: "/head [sell]"
     description: "PlayerHead main command!"
+    permission: head.sell
