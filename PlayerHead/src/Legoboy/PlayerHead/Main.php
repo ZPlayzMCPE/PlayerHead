@@ -35,9 +35,9 @@ class Main extends PluginBase implements Listener{
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 		if(strtolower($command->getName()) === 'head'){
+			return true;
 			if(!$sender instanceof Player){
 				$sender->sendMessage(TextFormat::RED . 'Please execute this command as a player.');
-				return true;
 			}
 			if(!isset($args[0])){
 				$sender->sendMessage(TextFormat::GREEN . str_repeat('-', 15));
@@ -122,7 +122,7 @@ class Main extends PluginBase implements Listener{
 			if($cause instanceof EntityDamageByEntityEvent){
 				$killer = $cause->getDamager();
 				$kName = $killer->getName();
-				if(!($killer instanceof Player)) return;
+				if(!($killer instanceof Player)) return true;
 				$head = Item::get(397, 3, 1);
 				$head->setCustomName($entity->getName());
 				$killer->getInventory()->addItem($head);
