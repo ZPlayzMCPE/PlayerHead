@@ -1,7 +1,7 @@
 name: PlayerHead  
 main: Legoboy\PlayerHead\Main
-version: "1.0.0"
-api: [2.0.0]
+version: "2.0.0-B1"
+api: [3.0.0-ALPHA9, 3.0.0-ALPHA10]
 author: Legoboy
 commands:
   head:
