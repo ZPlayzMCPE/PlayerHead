@@ -1,4 +1,5 @@
 ---
 heads-active: true
 heads-value-percentage: 0.1
+heads-place: false
 ...
