@@ -25,7 +25,7 @@ class Main extends PluginBase implements Listener{
 	
 	public function onEnable(){
 		if(!(EconomyAPI::getInstance() instanceof EconomyAPI)){
-			$this->getLogger()->critical('EconomyAPI is not installed!');
+			$this->getLogger()->critical('EconomyAPI is not installed! Plugin disabled.');
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 		}
 		@mkdir($this->getDataFolder());
@@ -34,26 +34,26 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-		if(strtolower($command->getName()) == 'head'){
+		if(strtolower($command->getName()) == "head"){
 			if(!$sender instanceof Player){
-				$sender->sendMessage(TextFormat::RED . 'Please execute this command as a player.');
+				$sender->sendMessage(TextFormat::RED . "Please execute this command as a player.");
 				return true;
 			}
 			if(!isset($args[0])){
 				$sender->sendMessage(TextFormat::GREEN . str_repeat('-', 15));
-				$sender->sendMessage(TextFormat::YELLOW . '- /head sell [player] > Sells either the specified player\'s head in your inventory, or all your heads.');
-				$sender->sendMessage(TextFormat::YELLOW . '- /head list > Lists all the heads you have.');
+				$sender->sendMessage(TextFormat::YELLOW . "- /head sell [player] > Sells either the specified player\'s head in your inventory, or all your heads.");
+				$sender->sendMessage(TextFormat::YELLOW . "- /head list > Lists all the heads you have.");
 				$sender->sendMessage(TextFormat::GREEN . str_repeat('-', 15));
 				return true;
 			}
 			switch(strtolower($args[0])){
-				case 'sell':
+				case "sell":
 					$head = Item::get(397, 3, 1);
 					$inv = $sender->getInventory();
 					if(isset($args[1])){
 						$killed = $args[1];
 						$sold = 0;
-						foreach($inv->getContents() as $i){
+						foreach($inv->getContents() as $i => $item){
 							if($i->equals($head, true, false) && (strtolower($i->getCustomName()) === strtolower($args[1]))){
 								$count = $i->getCount();
 								$sender->getInventory()->removeItem($i);
@@ -62,50 +62,54 @@ class Main extends PluginBase implements Listener{
 							}
 						}
 						if($sold <= 0){
-							$sender->sendMessage(TextFormat::RED . "You don't have any of $killed's heads!");
+							$sender->sendMessage(TextFormat::RED . "You don't have any of" . TextFormat::RED . $killed . TextFormat::RED . "'s heads!");
 							return true;
 						}
 						$killedMoney = EconomyAPI::getInstance()->myMoney($killed);
-						$earned = round($killedMoney * $this->getConfig()->get('heads-value-percentage', 0.1) * $sold);
+						$sender = $sender->getName();
+						$earned = round($killedMoney($this->getConfig()->get("heads-value-percentage", 0.1))) * $sold);
 						EconomyAPI::getInstance()->addMoney($sender, $earned, true, 'PLUGIN');
-						$sender->sendMessage(TextFormat::AQUA . "You sold $killed's head and earned $$earned!");
+						$sender->sendMessage(TextFormat::GREEN . "You sold " . TextFormat::AQUA . $killed . TextFormat::GREEN . "'s head and earned $" . TextFormat::AQUA . $earned);
 						return true;
 					}else{
 						$sold = 0;
 						$value = 0;
-						foreach($inv->getContents() as $i){
+						foreach($inv->getContents() as $i => $item){
 							if($i->equals($head, true, false)){
 								$count = $i->getCount();
-								$value += round(EconomyAPI::getInstance()->myMoney($i->getCustomName()) * $this->getConfig()->get('heads-value-percentage', 0.1));
+								$value += round(EconomyAPI::getInstance()->myMoney($i->getCustomName())
+								if($this->getConfig()->get("heads-value-percentage", 0.1));
 								$sold += $count;
+								$sender = $sender->getName();
 								$sender->getInventory()->removeItem($i);
 								return true;
 							}
 						}
-						EconomyAPI::getInstance()->addMoney($sender, $value, true, 'PLUGIN');
-						$sender->sendMessage(TextFormat::AQUA . "You sold $sold heads and earned $$value!");
+						EconomyAPI::getInstance()->addMoney($sender, $value, true, "PLUGIN");
+						$sender->sendMessage(TextFormat::GREEN . "You sold " . TextFormat::AQUA . $sold . TextFormat::GREEN . "heads and earned $" . TextFormat::AQUA . $value . TextFormat::GREEN . "!");
 						return true;
 					}
 					return true;
-				case 'list':
+				case "list":
 					$list = [];
 					$value = [];
 					$head = Item::get(397, 3, 1);
 					$inv = $sender->getInventory();
-					foreach($inv->getContents() as $i){
+					foreach($inv->getContents() as $i => $item){
 						if($i->equals($head, true, false)){
 							$killed = $i->getCustomName();
 							if(!isset($list[$killed])) $list[$killed] = 0;
 							if(!isset($value[$killed])) $value[$killed] = 0;
 							$count = $i->getCount();
 							$list[$killed] += $count;
-							$value[$killed] += round($count * EconomyAPI::getInstance()->myMoney($killed) * $this->getConfig()->get('heads-value-percentage', 0.1));
+							$value[$killed] += round($count * EconomyAPI::getInstance()->myMoney($killed) * $this->getConfig()->get("heads-value-percentage"));
+							return true;
 						}
 					}
 					$sender->sendMessage(TextFormat::GOLD . str_repeat('-', 15));
 					foreach($list as $name => $count){
 						$v = $value[$name];
-						$sender->sendMessage(TextFormat::AQUA . $name . "'s head: $count with value of $$v.");
+						$sender->sendMessage(TextFormat::AQUA . $name . "'s head: " . TextFormat::AQUA . $count . TextFormat::GREEN . "with value of $" TextFormat::AQUA . $v);
 						return true;
 					}
 					$sender->sendMessage(TextFormat::GOLD . str_repeat('-', 15));
@@ -116,7 +120,7 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	public function onDeath(PlayerDeathEvent $event){
-		if($this->getConfig()->get('heads-active', true) === true){
+		if($this->getConfig()->get("heads-active", true) === true){
 			$entity = $event->getEntity();
 			$cause = $entity->getLastDamageCause();
 			if($cause instanceof EntityDamageByEntityEvent){
@@ -127,10 +131,12 @@ class Main extends PluginBase implements Listener{
 				$head->setCustomName($entity->getName());
 				$killer->getInventory()->addItem($head);
 				
-				$cost = round(EconomyAPI::getInstance()->myMoney($entity) * $this->getConfig()->get('heads-value-percentage', 0.1));
-				EconomyAPI::getInstance()->reduceMoney($entity, $cost, true, 'PLUGIN');
-				$entity->sendMessage("You were killed by $kName, and lost $$cost.");
-				if($this->getConfig()->get('heads-place', false)){
+				$cost = round(EconomyAPI::getInstance()->myMoney($entity)
+				if($this->getConfig()->get("heads-value-percentage", 0.1));
+				EconomyAPI::getInstance()->reduceMoney($entity, $cost, true, "PLUGIN");
+				$entity->sendMessage(TextFormat::GREEN . "You were killed by " . Textformat::AQUA . $kName . TextFormat::GREEN . ", and lost $" . TextFormat::AQUA . $cost);
+				return true;
+				if($this->getConfig()->get("heads-place", false)){
 				return true;
 					
 				}
