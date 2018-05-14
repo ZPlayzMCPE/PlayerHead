@@ -1,31 +1,21 @@
 <?php
-
 namespace Legoboy\PlayerHead;
-
 use pocketmine\plugin\PluginBase;
-
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
-
 use pocketmine\Player;
-
 use pocketmine\item\Item;
-
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
-
 use pocketmine\utils\TextFormat;
-
 use pocketmine\utils\Config;
-
 use onebone\economyapi\EconomyAPI;
-
 class Main extends PluginBase implements Listener{
 	
-	public function onEnable(){
+	public function onEnable(): void{
 		if(!(EconomyAPI::getInstance() instanceof EconomyAPI)){
-			$this->getLogger()->critical('EconomyAPI is not installed! Plugin disabled.');
+			$this->getLogger()->critical("EconomyAPI is not installed! Plugin disabled.");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 		}
 		@mkdir($this->getDataFolder());
@@ -67,7 +57,7 @@ class Main extends PluginBase implements Listener{
 						}
 						$killedMoney = EconomyAPI::getInstance()->myMoney($killed);
 						$sender = $sender->getName();
-						$earned = round($killedMoney($this->getConfig()->get("heads-value-percentage", 0.1))) * $sold);
+						$earned = round($killedMoney($this->getConfig()->get("heads-value-percentage", 0.1)) * $sold);
 						EconomyAPI::getInstance()->addMoney($sender, $earned, true, 'PLUGIN');
 						$sender->sendMessage(TextFormat::GREEN . "You sold " . TextFormat::AQUA . $killed . TextFormat::GREEN . "'s head and earned $" . TextFormat::AQUA . $earned);
 						return true;
@@ -77,8 +67,7 @@ class Main extends PluginBase implements Listener{
 						foreach($inv->getContents() as $i => $item){
 							if($i->equals($head, true, false)){
 								$count = $i->getCount();
-								$value += round(EconomyAPI::getInstance()->myMoney($i->getCustomName())
-								if($this->getConfig()->get("heads-value-percentage", 0.1));
+								$value += round(EconomyAPI::getInstance()->myMoney($i->getCustomName()) === $this->getConfig()->get("heads-value-percentage", 0.1));
 								$sold += $count;
 								$sender = $sender->getName();
 								$sender->getInventory()->removeItem($i);
@@ -109,7 +98,7 @@ class Main extends PluginBase implements Listener{
 					$sender->sendMessage(TextFormat::GOLD . str_repeat('-', 15));
 					foreach($list as $name => $count){
 						$v = $value[$name];
-						$sender->sendMessage(TextFormat::AQUA . $name . "'s head: " . TextFormat::AQUA . $count . TextFormat::GREEN . "with value of $" TextFormat::AQUA . $v);
+						$sender->sendMessage(TextFormat::AQUA . $name . "'s head: " . TextFormat::AQUA . $count . TextFormat::GREEN . " with value of $" . TextFormat::AQUA . $v);
 						return true;
 					}
 					$sender->sendMessage(TextFormat::GOLD . str_repeat('-', 15));
@@ -131,8 +120,7 @@ class Main extends PluginBase implements Listener{
 				$head->setCustomName($entity->getName());
 				$killer->getInventory()->addItem($head);
 				
-				$cost = round(EconomyAPI::getInstance()->myMoney($entity)
-				if($this->getConfig()->get("heads-value-percentage", 0.1));
+				$cost = round(EconomyAPI::getInstance()->myMoney($entity) === $this->getConfig()->get("heads-value-percentage", 0.1));
 				EconomyAPI::getInstance()->reduceMoney($entity, $cost, true, "PLUGIN");
 				$entity->sendMessage(TextFormat::GREEN . "You were killed by " . Textformat::AQUA . $kName . TextFormat::GREEN . ", and lost $" . TextFormat::AQUA . $cost);
 				return true;
